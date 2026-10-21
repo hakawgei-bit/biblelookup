@@ -3,7 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "node scripts/build.js",
     "start": "python3 -m http.server 3000",
-    "dev": "python3 -m http.server 3000"
+    "dev": "python3 -m http.server 3000",
+    "android": "npm run build && cap sync android",
+    "ios": "npm run build && cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.4.3"
   }
 }
