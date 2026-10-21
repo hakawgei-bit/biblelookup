@@ -1,5 +1,8 @@
 {
   "appId": "com.biblelookup.app",
   "appName": "BibleLookUp",
-  "webDir": "www"
+  "webDir": "www",
+  "server": {
+    "url": "https://hakawgei-bit.github.io/biblelookup/"
+  }
 }
