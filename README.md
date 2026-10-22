@@ -20,11 +20,12 @@ Then open:
 
 http://localhost:3000
 
-Use the **Install app** button to install BibleLookUp. Browsers that support an
-install prompt will show it; otherwise, the button provides the browser-specific
-steps. On iPhone or iPad, open the website in Safari, tap **Share**, then **Add
-to Home Screen**. Installation requires HTTPS or localhost. The service worker
-caches the app page for offline use after the first successful visit.
+On iPhone 13, open the published website in Safari, tap **Share**, scroll down,
+then tap **Add to Home Screen** and **Add**. The saved icon opens BibleLookUp
+like an app. This option is provided by Safari; the website does not show a
+separate install button. The site must be served over HTTPS or localhost. The
+service worker caches the app page for offline use after the first successful
+visit.
 
 ## Android and iOS apps
 
