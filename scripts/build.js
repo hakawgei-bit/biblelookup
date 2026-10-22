@@ -5,7 +5,7 @@ const root = join(__dirname, '..');
 const output = join(root, 'www');
 
 mkdirSync(output, { recursive: true });
-for (const file of ['index.html', 'manifest.webmanifest', 'pwa.js', 'sw.js']) {
+for (const file of ['index.html', 'manifest.webmanifest', 'pwa.js', 'sw.js', 'bible-en.json.gz']) {
   copyFileSync(join(root, file), join(output, file));
 }
 

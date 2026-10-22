@@ -1,9 +1,10 @@
-const CACHE_NAME = "biblelookup-pwa-v1";
+const CACHE_NAME = "biblelookup-pwa-v2";
 const APP_ROOT = self.registration.scope;
 const APP_FILES = [
   "./",
   "./manifest.webmanifest",
   "./pwa.js",
+  "./bible-en.json.gz",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];

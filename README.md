@@ -5,6 +5,7 @@ A Myanmar Bible lookup app that can run as a website or as a native Android/iOS 
 ## Features
 - Search by keyword, book, or verse text
 - Filter by book name
+- Switch between the Myanmar Bible and English King James Version (KJV)
 - Random verse button for inspiration
 - Mobile apps load the live GitHub Pages website
 - Installable website with offline support
@@ -24,8 +25,8 @@ On iPhone 13, open the published website in Safari, tap **Share**, scroll down,
 then tap **Add to Home Screen** and **Add**. The saved icon opens BibleLookUp
 like an app. This option is provided by Safari; the website does not show a
 separate install button. The site must be served over HTTPS or localhost. The
-service worker caches the app page for offline use after the first successful
-visit.
+service worker caches the app and Bible data for offline use after the first
+successful visit.
 
 ## Android and iOS apps
 
@@ -73,9 +74,19 @@ Fonts and use system fallbacks when offline.
 - `package.json` — local and mobile development scripts
 - `capacitor.config.json` — Capacitor app identity and hosted website URL
 - `scripts/build.js` — prepares web assets for native apps
-- `manifest.webmanifest`, `sw.js`, and `pwa.js` — web install, offline cache,
-  and install prompt
+- `scripts/import-english-bible.py` — imports KJV chapter text from `kj_new.zip`
+- `bible-en.json.gz` — compressed English KJV chapter data
+- `manifest.webmanifest`, `sw.js`, and `pwa.js` — home-screen metadata and
+  offline caching
 - `icons/` — installable web app icons
+
+To regenerate the English text data, place the authorized KJV source archive
+`kj_new.zip` in the project root and run:
+
+```bash
+python scripts/import-english-bible.py
+npm run build
+```
 
 ## Notes
 This is a lightweight starter app intended for local use and future extension into a larger Bible lookup product.
