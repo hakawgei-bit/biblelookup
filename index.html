@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ကျမ်းချက်ရှာ · Bible Quick Lookup</title>
+<meta name="theme-color" content="#0c1222">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BibleLookUp">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600&family=Noto+Serif+Myanmar:wght@400;600&display=swap">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1c2333;--dim:#7a8396;--line:#dfe3ea;--accent:#2d5b8c;--hl:#ffe8a3;--hlink:#1c2333;
@@ -36,6 +41,11 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline
 .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 button{font:inherit;padding:8px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 button:hover{border-color:var(--accent)}
+#installButton{flex:none;border-color:var(--accent);color:var(--accent);font-size:.9rem}
+#installButton[hidden],#installHelp[hidden]{display:none}
+#installHelp{font-size:.85rem;color:var(--dim);margin:8px 0 0;line-height:1.6}
+.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.app-header h1{margin-right:auto}
 .msg{color:var(--dim);line-height:1.7;margin:0}
 .src{font-size:.78rem;color:var(--dim);margin:10px 0 0}
 @media (max-width:480px){.row{grid-template-columns:minmax(0,1fr) 64px 64px;gap:8px}input{font-size:1rem;padding:11px 8px}label{font-size:.72rem;white-space:nowrap}.e{display:none}}
@@ -79,7 +89,11 @@ button:active{transform:scale(.96)}
 <body>
 <div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>
 <main>
+<header class="app-header">
 <h1>ကျမ်းချက်ရှာ · Bible quick lookup</h1>
+<button id="installButton" type="button" hidden>Install app · အက်ပ်ထည့်သွင်းရန်</button>
+</header>
+<p id="installHelp" role="status" hidden></p>
 <div class="row">
   <div class="field">
     <label for="book">စာအုပ် · Book</label>
@@ -156,5 +170,6 @@ async function show(){
  $("sm").onclick=()=>{size=Math.max(1,size-.2);show()};$("lg").onclick=()=>{size=Math.min(3.2,size+.2);show()}}
 bookIn.focus();
 </script>
+<script src="./pwa.js"></script>
 </body>
 </html>

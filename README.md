@@ -7,6 +7,7 @@ A Myanmar Bible lookup app that can run as a website or as a native Android/iOS 
 - Filter by book name
 - Random verse button for inspiration
 - Mobile apps load the live GitHub Pages website
+- Installable website with offline support
 - Native Android and iOS shells powered by Capacitor
 
 ## Run locally
@@ -18,6 +19,12 @@ npm start
 Then open:
 
 http://localhost:3000
+
+Use the **Install app** button to install BibleLookUp. Browsers that support an
+install prompt will show it; otherwise, the button provides the browser-specific
+steps. On iPhone or iPad, open the website in Safari, tap **Share**, then **Add
+to Home Screen**. Installation requires HTTPS or localhost. The service worker
+caches the app page for offline use after the first successful visit.
 
 ## Android and iOS apps
 
@@ -65,6 +72,9 @@ Fonts and use system fallbacks when offline.
 - `package.json` — local and mobile development scripts
 - `capacitor.config.json` — Capacitor app identity and hosted website URL
 - `scripts/build.js` — prepares web assets for native apps
+- `manifest.webmanifest`, `sw.js`, and `pwa.js` — web install, offline cache,
+  and install prompt
+- `icons/` — installable web app icons
 
 ## Notes
 This is a lightweight starter app intended for local use and future extension into a larger Bible lookup product.
