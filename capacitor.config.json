@@ -1,6 +1,6 @@
 {
   "appId": "com.biblelookup.app",
-  "appName": "BibleLookUp",
+  "appName": "FindVerseQuick",
   "webDir": "www",
   "server": {
     "url": "https://hakawgei-bit.github.io/biblelookup/"

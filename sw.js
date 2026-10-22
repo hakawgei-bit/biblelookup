@@ -1,12 +1,14 @@
-const CACHE_NAME = "biblelookup-pwa-v2";
+const CACHE_NAME = "biblelookup-pwa-v4";
 const APP_ROOT = self.registration.scope;
 const APP_FILES = [
   "./",
   "./manifest.webmanifest",
   "./pwa.js",
-  "./bible-en.json.gz",
+  "./data/bible-en.json.gz",
+  "./data/bible-my.json.gz",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./icons/apple-touch-icon.png"
 ];
 
 self.addEventListener("install", (event) => {

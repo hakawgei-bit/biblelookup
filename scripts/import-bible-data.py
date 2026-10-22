@@ -7,17 +7,19 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-ARCHIVE = ROOT / "kj_new.zip"
-OUTPUT = ROOT / "bible-en.json.gz"
+DATA_DIR = ROOT / "data"
 CHAPTER_COUNTS = tuple(
     map(
         int,
         "50 40 27 36 34 24 21 4 31 24 22 25 29 36 10 13 10 42 150 31 12 8 "
-        "66 52 5 48 12 14 3 9 1 4 7 3 3 3 2 14 4 28 16 24 21 28 16 16 13 6 "
-        "6 4 4 5 3 6 4 3 1 13 5 5 3 5 1 1 1 22".split(),
+        "66 52 5 48 12 14 3 9 1 4 7 3 3 3 2 14 4 "
+        "28 16 24 21 28 16 16 13 6 6 4 4 5 3 6 4 3 1 13 5 5 3 5 1 1 1 22".split(),
     )
 )
-CHAPTER_PATH = re.compile(r"kj_new/(\d{2})/(\d+)\.htm\Z")
+SOURCES = {
+    "en": ("kj_new.zip", "kj_new"),
+    "my": ("myanmar.zip", "my_new"),
+}
 
 
 class VerseParser(HTMLParser):
@@ -81,14 +83,16 @@ def decode_page(data):
         return data.decode("cp1252")
 
 
-def main():
-    if not ARCHIVE.is_file():
-        raise FileNotFoundError(f"Place the English archive at {ARCHIVE}")
+def import_translation(language, archive_name, archive_root):
+    archive_path = ROOT / archive_name
+    if not archive_path.is_file():
+        raise FileNotFoundError(f"Place the source archive at {archive_path}")
 
+    chapter_pattern = re.compile(rf"{re.escape(archive_root)}/(\d{{2}})/(\d+)\.htm\Z")
     chapters = {}
-    with zipfile.ZipFile(ARCHIVE) as archive:
+    with zipfile.ZipFile(archive_path) as archive:
         for name in archive.namelist():
-            match = CHAPTER_PATH.fullmatch(name)
+            match = chapter_pattern.fullmatch(name)
             if not match:
                 continue
             book_id, chapter_id = map(int, match.groups())
@@ -97,23 +101,27 @@ def main():
             chapters.setdefault(book_id, {})[chapter_id] = parser.chapter()
 
     if sorted(chapters) != list(range(1, len(CHAPTER_COUNTS) + 1)):
-        raise ValueError("Archive must contain all 66 Bible books")
+        raise ValueError(f"{archive_name} must contain all 66 Bible books")
 
     books = []
     for book_id, expected_count in enumerate(CHAPTER_COUNTS, start=1):
         book_chapters = chapters[book_id]
         if sorted(book_chapters) != list(range(1, expected_count + 1)):
-            raise ValueError(f"Book {book_id} has missing or unexpected chapters")
+            raise ValueError(f"{archive_name}: book {book_id} has missing chapters")
         books.append([book_chapters[n] for n in range(1, expected_count + 1)])
 
+    DATA_DIR.mkdir(exist_ok=True)
     payload = json.dumps(books, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    compressed = gzip.compress(payload, mtime=0)
-    OUTPUT.write_bytes(compressed)
-    print(
-        f"Imported {sum(map(len, books))} chapters and "
-        f"{sum(len(chapter) for book in books for chapter in book)} verses "
-        f"to {OUTPUT.name} ({len(compressed):,} bytes)."
-    )
+    output = DATA_DIR / f"bible-{language}.json.gz"
+    output.write_bytes(gzip.compress(payload, mtime=0))
+    chapter_count = sum(map(len, books))
+    verse_count = sum(len(chapter) for book in books for chapter in book)
+    print(f"{language}: {chapter_count} chapters, {verse_count} verses -> {output.relative_to(ROOT)}")
+
+
+def main():
+    for language, (archive_name, archive_root) in SOURCES.items():
+        import_translation(language, archive_name, archive_root)
 
 
 if __name__ == "__main__":

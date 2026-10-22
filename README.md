@@ -1,4 +1,4 @@
-# BibleLookUp
+# FindVerseQuick
 
 A Myanmar Bible lookup app that can run as a website or as a native Android/iOS app.
 
@@ -22,11 +22,11 @@ Then open:
 http://localhost:3000
 
 On iPhone 13, open the published website in Safari, tap **Share**, scroll down,
-then tap **Add to Home Screen** and **Add**. The saved icon opens BibleLookUp
-like an app. This option is provided by Safari; the website does not show a
-separate install button. The site must be served over HTTPS or localhost. The
-service worker caches the app and Bible data for offline use after the first
-successful visit.
+then tap **Add to Home Screen** and **Add**. The saved app appears as
+**FindVerseQuick** with its book-and-magnifier icon. This option is provided by
+Safari; the website does not show a separate install button. The site must be
+served over HTTPS or localhost. The service worker caches the app and Bible
+data for offline use after the first successful visit.
 
 ## Android and iOS apps
 
@@ -74,17 +74,19 @@ Fonts and use system fallbacks when offline.
 - `package.json` — local and mobile development scripts
 - `capacitor.config.json` — Capacitor app identity and hosted website URL
 - `scripts/build.js` — prepares web assets for native apps
-- `scripts/import-english-bible.py` — imports KJV chapter text from `kj_new.zip`
-- `bible-en.json.gz` — compressed English KJV chapter data
+- `scripts/import-bible-data.py` — imports both translations from their source archives
+- `data/bible-en.json.gz` — compressed English KJV chapter data
+- `data/bible-my.json.gz` — compressed Myanmar Bible chapter data
+- `icons/findversequick.svg` and PNG exports — app logo and home-screen icons
 - `manifest.webmanifest`, `sw.js`, and `pwa.js` — home-screen metadata and
   offline caching
 - `icons/` — installable web app icons
 
-To regenerate the English text data, place the authorized KJV source archive
-`kj_new.zip` in the project root and run:
+To regenerate both data files, temporarily place the authorized source archives
+`kj_new.zip` and `myanmar.zip` in the project root and run:
 
 ```bash
-python scripts/import-english-bible.py
+python scripts/import-bible-data.py
 npm run build
 ```
 

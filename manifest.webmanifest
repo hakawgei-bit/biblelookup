@@ -1,9 +1,9 @@
 {
   "id": "./",
-  "name": "ကျမ်းချက်ရှာ · Bible Quick Lookup",
-  "short_name": "BibleLookUp",
-  "description": "Search the Myanmar Bible by book, chapter, and verse.",
-  "lang": "my",
+  "name": "FindVerseQuick",
+  "short_name": "FindVerseQuick",
+  "description": "Quick Bible verse lookup in English and Myanmar.",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -21,6 +21,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
