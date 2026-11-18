@@ -249,6 +249,11 @@ function renderProjection(chapters,c,rng){
   alignProjectionVerseRows();
   updateProjectionVerseHighlight();
  });
+ document.fonts.ready.then(()=>{
+  if(projection.hidden)return;
+  alignProjectionVerseRows();
+  updateProjectionVerseHighlight();
+ });
 }
 function alignProjectionVerseRows(){
  const articles=[...projectionContent.querySelectorAll(".projection-language")];
