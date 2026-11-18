@@ -245,7 +245,26 @@ function renderProjection(chapters,c,rng){
    (selected.length?selected.map(v=>'<p class="projection-verse" data-verse="'+v.number+'"><span class="n">'+(lang==="my"?toMy(v.number):v.number)+'</span>'+v.text+'</p>').join(""):'<p class="msg">This passage is not available in this translation.</p>')+
    '</article>';
  }).join("");
- updateProjectionVerseHighlight();
+ requestAnimationFrame(()=>{
+  alignProjectionVerseRows();
+  updateProjectionVerseHighlight();
+ });
+}
+function alignProjectionVerseRows(){
+ const articles=[...projectionContent.querySelectorAll(".projection-language")];
+ const headings=articles.map(article=>article.querySelector("h3")).filter(Boolean);
+ headings.forEach(heading=>heading.style.minHeight="");
+ const headingHeight=Math.max(0,...headings.map(heading=>heading.getBoundingClientRect().height));
+ headings.forEach(heading=>heading.style.minHeight=headingHeight+"px");
+ const verses=articles.flatMap(article=>[...article.querySelectorAll(".projection-verse")]);
+ verses.forEach(verse=>verse.style.minHeight="");
+ if(projection.dataset.layout==="stacked"||articles.length<2)return;
+ const heights=new Map();
+ verses.forEach(verse=>{
+  const number=verse.dataset.verse;
+  heights.set(number,Math.max(heights.get(number)||0,verse.getBoundingClientRect().height));
+ });
+ verses.forEach(verse=>verse.style.minHeight=Math.ceil(heights.get(verse.dataset.verse))+"px");
 }
 function updateProjectionVerseHighlight(){
  if(projection.hidden)return;
@@ -332,6 +351,8 @@ $("projectionLayout").addEventListener("click",()=>{
  $("projectionLayout").textContent=stacked?"Side":"Stack";
  $("projectionLayout").setAttribute("aria-label",stacked?"Switch to side-by-side layout":"Switch to stacked layout");
  $("projectionLayout").title=stacked?"Switch to side-by-side layout":"Switch to stacked layout";
+ alignProjectionVerseRows();
+ updateProjectionVerseHighlight();
 });
 $("projectionContrast").addEventListener("click",()=>{
  const high=projection.dataset.contrast!=="high";
@@ -342,6 +363,10 @@ $("projectionContrast").addEventListener("click",()=>{
  $("projectionContrast").title=high?"Switch to standard background":"Switch to high-contrast background";
 });
 projectionContent.addEventListener("scroll",scheduleProjectionVerseHighlight,{passive:true});
+window.addEventListener("resize",()=>{
+ alignProjectionVerseRows();
+ updateProjectionVerseHighlight();
+});
 $("projectionSmaller").addEventListener("click",()=>{projectionSize=Math.max(1.2,projectionSize-.2);show()});
 $("projectionLarger").addEventListener("click",()=>{projectionSize=Math.min(5,projectionSize+.2);show()});
 $("projectionPrev").addEventListener("click",()=>{const c=parseInt(toEn(chIn.value),10);if(book&&c>1){chIn.value=c-1;vsIn.value="";show()}});
