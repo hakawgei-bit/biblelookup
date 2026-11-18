@@ -6,7 +6,7 @@ A Myanmar Bible lookup app that can run as a website or as a native Android/iOS 
 - Search by keyword, book, or verse text
 - Filter by book name
 - Switch between the Myanmar Bible and English King James Version (KJV)
-- Bilingual fullscreen projection with book search and Old/New Testament dropdowns
+- Bilingual fullscreen projection with book search, high-contrast background, and scroll-tracked verse highlighting
 - Random verse button for inspiration
 - Mobile apps load the live GitHub Pages website
 - Installable website with offline support

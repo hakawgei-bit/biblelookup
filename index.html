@@ -105,7 +105,10 @@ body.projecting{overflow:hidden}
 .projection-language h3{font-family:"Noto Serif Myanmar","Myanmar Text",Padauk,serif;font-size:clamp(1.1rem,2vw,1.6rem);color:var(--accent);margin:0 0 12px}
 .projection-language[lang="en"] .projection-verse{font-family:Georgia,"Times New Roman",serif}
 .projection-verse{font-family:"Noto Serif Myanmar","Myanmar Text",Padauk,serif;font-size:var(--projection-font-size,2.4rem);line-height:1.75;overflow-wrap:anywhere;margin:0 0 .45em}
+.projection-verse.is-active{padding:0 .2em;border-radius:8px;background:var(--hl);color:var(--hlink);transition:background-color .2s,color .2s}
 .projection-verse .n{font-size:.58em;margin-right:.55em}
+.projection[data-contrast="high"]{--bg:#080b12;--card:#111827;--ink:#fff;--line:#c3d0e0;--accent:#fff184;--hl:#ffea70;--hlink:#101319}
+.projection[data-contrast="high"] .projection-language{border-color:#c3d0e0}
 @media(max-width:1050px){.projection-toolbar{grid-template-columns:minmax(130px,.7fr) minmax(220px,1.3fr)}.projection-toolbar-actions{grid-column:1/-1;justify-content:flex-start}}
 @media(max-width:700px){.projection-toolbar{grid-template-columns:minmax(0,1fr)}.projection-toolbar-actions{grid-column:auto;justify-content:flex-start;flex-wrap:wrap}.projection-search{grid-template-columns:minmax(0,1fr)}.projection-book-selects select{font-size:.8rem;padding:7px 5px}.projection-search .row{grid-template-columns:minmax(0,1fr) 58px 58px}.projection-content{grid-template-columns:minmax(0,1fr)}.projection[data-layout="side-by-side"] .projection-content{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 </style>
@@ -139,7 +142,7 @@ body.projecting{overflow:hidden}
 <p class="hint">Type the book in English or Burmese, press Enter, then the chapter and verse. English or Burmese numbers both work. Shortcut: type “psalm 100:1” or “ဆာလံ ၁၀၀:၁” in the book box. Leave verse empty for the whole chapter.</p>
 <section id="out" aria-live="polite"><p class="msg">Your passage will appear here.</p></section>
 </main>
-<section id="projection" class="projection" data-layout="side-by-side" aria-label="Bilingual Bible projection" aria-modal="true" role="dialog" hidden>
+<section id="projection" class="projection" data-layout="side-by-side" data-contrast="standard" aria-label="Bilingual Bible projection" aria-modal="true" role="dialog" hidden>
   <header class="projection-toolbar">
     <p id="projectionReference" class="projection-reference"></p>
     <div id="projectionSearch" class="projection-search">
@@ -156,6 +159,7 @@ body.projecting{overflow:hidden}
       <button id="projectionLayout" type="button" aria-label="Switch to stacked layout" title="Switch to stacked layout">Stack</button>
       <button id="projectionSmaller" type="button" aria-label="Smaller text">A−</button>
       <button id="projectionLarger" type="button" aria-label="Larger text">A+</button>
+      <button id="projectionContrast" type="button" aria-label="Switch to high-contrast background" aria-pressed="false" title="Switch to high-contrast background">Contrast</button>
       <button id="projectionExit" type="button" aria-label="Exit projection">Exit</button>
     </div>
   </header>
@@ -182,7 +186,7 @@ const bookIn=$("book"),chIn=$("ch"),vsIn=$("vs"),sug=$("sug"),out=$("out"),langu
 const projection=$("projection"),projectionContent=$("projectionContent"),projectionReference=$("projectionReference");
 const projectionOldBook=$("projectionOldBook"),projectionNewBook=$("projectionNewBook");
 const searchControls=$("searchControls"),searchHome=searchControls.parentNode,searchAnchor=searchControls.nextSibling;
-let book=null,items=[],sel=0,size=1.5,projectionSize=2.4,token=0,language=languageSelect.value;
+let book=null,items=[],sel=0,size=1.5,projectionSize=2.4,token=0,projectionHighlightFrame=0,language=languageSelect.value;
 const toEn=s=>s.replace(/[၀-၉]/g,d=>"၀၁၂၃၄၅၆၇၈၉".indexOf(d)),toMy=n=>String(n).replace(/\d/g,d=>"၀၁၂၃၄၅၆၇၈၉"[d]);
 const formatNumber=n=>language==="my"?toMy(n):String(n);
 function populateProjectionBooks(){
@@ -238,9 +242,44 @@ function renderProjection(chapters,c,rng){
   const lang=index===0?"my":"en",name=lang==="my"?"မြန်မာကျမ်းစာ":"King James Version (KJV)";
   const selected=verses.map((text,i)=>({text,number:i+1})).filter(v=>!rng||v.number>=rng[0]&&v.number<=rng[1]);
   return '<article class="projection-language" lang="'+lang+'"><h3>'+name+'</h3>'+
-   (selected.length?selected.map(v=>'<p class="projection-verse"><span class="n">'+(lang==="my"?toMy(v.number):v.number)+'</span>'+v.text+'</p>').join(""):'<p class="msg">This passage is not available in this translation.</p>')+
+   (selected.length?selected.map(v=>'<p class="projection-verse" data-verse="'+v.number+'"><span class="n">'+(lang==="my"?toMy(v.number):v.number)+'</span>'+v.text+'</p>').join(""):'<p class="msg">This passage is not available in this translation.</p>')+
    '</article>';
  }).join("");
+ updateProjectionVerseHighlight();
+}
+function updateProjectionVerseHighlight(){
+ if(projection.hidden)return;
+ const articles=[...projectionContent.querySelectorAll(".projection-language")];
+ if(!articles.length)return;
+ const target=projectionContent.getBoundingClientRect().top+Math.min(projectionContent.clientHeight*.3,140);
+ let article=articles.find(candidate=>{
+  const rect=candidate.getBoundingClientRect();
+  return rect.top<=target&&rect.bottom>=target;
+ });
+ if(!article)article=articles.reduce((nearest,candidate)=>{
+  const rect=candidate.getBoundingClientRect();
+  const distance=target<rect.top?rect.top-target:target>rect.bottom?target-rect.bottom:0;
+  const nearestRect=nearest.getBoundingClientRect();
+  const nearestDistance=target<nearestRect.top?nearestRect.top-target:target>nearestRect.bottom?target-nearestRect.bottom:0;
+  return distance<nearestDistance?candidate:nearest;
+ });
+ const verses=[...article.querySelectorAll(".projection-verse")];
+ if(!verses.length)return;
+ const active=verses.find(verse=>verse.getBoundingClientRect().bottom>=target)||verses[verses.length-1];
+ const number=active.dataset.verse;
+ projectionContent.querySelectorAll(".projection-verse").forEach(verse=>{
+  const isActive=verse.dataset.verse===number;
+  verse.classList.toggle("is-active",isActive);
+  if(isActive)verse.setAttribute("aria-current","location");
+  else verse.removeAttribute("aria-current");
+ });
+}
+function scheduleProjectionVerseHighlight(){
+ if(projectionHighlightFrame)return;
+ projectionHighlightFrame=requestAnimationFrame(()=>{
+  projectionHighlightFrame=0;
+  updateProjectionVerseHighlight();
+ });
 }
 async function show(){
  const my=++token;
@@ -294,6 +333,15 @@ $("projectionLayout").addEventListener("click",()=>{
  $("projectionLayout").setAttribute("aria-label",stacked?"Switch to side-by-side layout":"Switch to stacked layout");
  $("projectionLayout").title=stacked?"Switch to side-by-side layout":"Switch to stacked layout";
 });
+$("projectionContrast").addEventListener("click",()=>{
+ const high=projection.dataset.contrast!=="high";
+ projection.dataset.contrast=high?"high":"standard";
+ $("projectionContrast").textContent=high?"Standard":"Contrast";
+ $("projectionContrast").setAttribute("aria-pressed",String(high));
+ $("projectionContrast").setAttribute("aria-label",high?"Switch to standard background":"Switch to high-contrast background");
+ $("projectionContrast").title=high?"Switch to standard background":"Switch to high-contrast background";
+});
+projectionContent.addEventListener("scroll",scheduleProjectionVerseHighlight,{passive:true});
 $("projectionSmaller").addEventListener("click",()=>{projectionSize=Math.max(1.2,projectionSize-.2);show()});
 $("projectionLarger").addEventListener("click",()=>{projectionSize=Math.min(5,projectionSize+.2);show()});
 $("projectionPrev").addEventListener("click",()=>{const c=parseInt(toEn(chIn.value),10);if(book&&c>1){chIn.value=c-1;vsIn.value="";show()}});
