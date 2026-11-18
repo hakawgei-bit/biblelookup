@@ -186,7 +186,7 @@ const bookIn=$("book"),chIn=$("ch"),vsIn=$("vs"),sug=$("sug"),out=$("out"),langu
 const projection=$("projection"),projectionContent=$("projectionContent"),projectionReference=$("projectionReference");
 const projectionOldBook=$("projectionOldBook"),projectionNewBook=$("projectionNewBook");
 const searchControls=$("searchControls"),searchHome=searchControls.parentNode,searchAnchor=searchControls.nextSibling;
-let book=null,items=[],sel=0,size=1.5,projectionSize=2.4,token=0,projectionHighlightFrame=0,language=languageSelect.value;
+let book=null,items=[],sel=0,size=1.5,projectionSize=2.4,token=0,projectionHighlightFrame=0,hoveredProjectionVerse=null,language=languageSelect.value;
 const toEn=s=>s.replace(/[၀-၉]/g,d=>"၀၁၂၃၄၅၆၇၈၉".indexOf(d)),toMy=n=>String(n).replace(/\d/g,d=>"၀၁၂၃၄၅၆၇၈၉"[d]);
 const formatNumber=n=>language==="my"?toMy(n):String(n);
 function populateProjectionBooks(){
@@ -233,6 +233,7 @@ vsIn.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();bookI
 function parseV(s){const m=toEn(s).trim().match(/^(\d+)(?:\s*[-–]\s*(\d+))?$/);if(!m)return null;const a=+m[1],b=m[2]?+m[2]:a;return[Math.min(a,b),Math.max(a,b)]}
 function msg(t){for(const target of projection.hidden?[out]:[out,projectionContent]){const p=document.createElement("p");p.className="msg";p.textContent=t;target.replaceChildren(p)}}
 function renderProjection(chapters,c,rng){
+ hoveredProjectionVerse=null;
  const suffix=rng?":"+(rng[0]===rng[1]?rng[0]:rng[0]+"–"+rng[1]):"";
  projectionReference.textContent=book.my+" "+toMy(c)+suffix.replace(/\d+/g,n=>toMy(n))+" · "+book.en+" "+c+suffix;
  projectionReference.title=projectionReference.textContent;
@@ -288,13 +289,12 @@ function updateProjectionVerseHighlight(){
   return distance<nearestDistance?candidate:nearest;
  });
  const verses=[...article.querySelectorAll(".projection-verse")];
- if(!verses.length)return;
  const active=verses.find(verse=>verse.getBoundingClientRect().bottom>=target)||verses[verses.length-1];
- const number=active.dataset.verse;
+ const number=hoveredProjectionVerse||(active?active.dataset.verse:null);
  projectionContent.querySelectorAll(".projection-verse").forEach(verse=>{
   const isActive=verse.dataset.verse===number;
   verse.classList.toggle("is-active",isActive);
-  if(isActive)verse.setAttribute("aria-current","location");
+  if(active&&verse.dataset.verse===active.dataset.verse)verse.setAttribute("aria-current","location");
   else verse.removeAttribute("aria-current");
  });
 }
@@ -368,6 +368,20 @@ $("projectionContrast").addEventListener("click",()=>{
  $("projectionContrast").title=high?"Switch to standard background":"Switch to high-contrast background";
 });
 projectionContent.addEventListener("scroll",scheduleProjectionVerseHighlight,{passive:true});
+projectionContent.addEventListener("pointermove",event=>{
+ if(event.pointerType!=="mouse"&&event.pointerType!=="pen")return;
+ const target=event.target;
+ const verse=target instanceof Element?target.closest(".projection-verse"):null;
+ const number=verse&&projectionContent.contains(verse)?verse.dataset.verse:null;
+ if(number===hoveredProjectionVerse)return;
+ hoveredProjectionVerse=number;
+ updateProjectionVerseHighlight();
+});
+projectionContent.addEventListener("pointerleave",()=>{
+ if(!hoveredProjectionVerse)return;
+ hoveredProjectionVerse=null;
+ updateProjectionVerseHighlight();
+});
 window.addEventListener("resize",()=>{
  alignProjectionVerseRows();
  updateProjectionVerseHighlight();
