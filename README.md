@@ -6,12 +6,15 @@ A Myanmar Bible lookup app that can run as a website or as a native Android/iOS 
 - Search by keyword, book, or verse text
 - Filter by book name
 - Switch between the Myanmar Bible and English King James Version (KJV)
+- Bilingual fullscreen projection with book search and Old/New Testament dropdowns
 - Random verse button for inspiration
 - Mobile apps load the live GitHub Pages website
 - Installable website with offline support
 - Native Android and iOS shells powered by Capacitor
 
 ## Run locally
+
+Requires Node.js.
 
 ```bash
 npm start
